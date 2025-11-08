@@ -1,12 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { UserInfo } from '../../../core/user-info';
+import { BanWordsDirective } from '../validators/ban-words.directive';
+import { PasswordShouldMatchDirective } from '../validators/password-should-match.directive';
+import { UniqueNicknameDirective } from '../validators/unique-nickname.directive';
 
 @Component({
   selector: 'app-template-forms-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    BanWordsDirective,
+    PasswordShouldMatchDirective,
+    UniqueNicknameDirective,
+  ],
   templateUrl: './template-forms-page.component.html',
   styleUrls: [
     '../../common-page.scss',
@@ -15,20 +30,30 @@ import { UserInfo } from '../../../core/user-info';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TemplateFormsPageComponent implements OnInit {
+export class TemplateFormsPageComponent implements OnInit, AfterViewInit {
   userInfo: UserInfo = {
     firstName: 'Dmytro',
-    lastName: '',
-    nickname: '',
-    email: '',
-    yearOfBirth: 0,
-    passport: '',
-    fullAddress: '',
-    city: '',
-    postCode: 0,
+    lastName: 'Mezhenskyi',
+    nickname: 'dmytro.mezhenkyi',
+    email: 'dmytro@decodedfrontend.io',
+    yearOfBirth: 1991,
+    passport: 'AB123456',
+    fullAddress: 'Somestreet 4',
+    city: 'Kharkiv',
+    postCode: 123456,
+    password: '',
+    confirmPassword: '',
   };
 
-  constructor() {}
+  @ViewChild(NgForm)
+  formDir!: NgForm;
+
+  private initialFormValues: unknown;
+
+  get isAdult() {
+    const currentYear = new Date().getFullYear();
+    return currentYear - this.userInfo.yearOfBirth >= 18;
+  }
 
   get years() {
     const now = new Date().getUTCFullYear();
@@ -39,19 +64,27 @@ export class TemplateFormsPageComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSubmitForm(form: NgForm, e: SubmitEvent) {
-    console.log('The form has been submitted', form.value);
-    this.userInfo = {
-      firstName: '',
-      lastName: '',
-      nickname: '',
-      email: '',
-      yearOfBirth: 0,
-      passport: '',
-      fullAddress: '',
-      city: '',
-      postCode: 0,
-    };
+  ngAfterViewInit(): void {
+    queueMicrotask(() => {
+      this.initialFormValues = this.formDir.value;
+    });
+  }
+
+  onSubmitForm(e: SubmitEvent) {
+    console.log('The form has been submitted', this.formDir.value);
+    // Strategy 1 - Reset form values, validation statuses, making controls untouched, pristine, etc
+    // form.resetForm();
+    // Strategy 2 - Reset only control statuses but not values.
+    this.formDir.resetForm(this.formDir.value);
+    // this.formDir.resetForm({
+    //   'first-name': this.formDir.controls['first-name']?.value,
+    // });
+    this.initialFormValues = this.formDir.value;
     // console.log('The native submit event', e);
+  }
+
+  onReset(e: Event) {
+    e.preventDefault();
+    this.formDir.resetForm(this.initialFormValues);
   }
 }
