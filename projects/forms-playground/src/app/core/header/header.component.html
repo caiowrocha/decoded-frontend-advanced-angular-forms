@@ -28,11 +28,18 @@
       >Dynamic Forms</a
     >
   </div>
-  <input
+  <!-- <input
     [(ngModel)]="search"
     [ngModelOptions]="{ standalone: true }"
+    (ngModelChange)="onNgModelChange()"
     type="text"
     class="global-search"
     placeholder="Search"
+  /> -->
+  <input
+    type="text"
+    class="global-search"
+    placeholder="Search"
+    [formControl]="reactiveSearchString"
   />
 </header>
