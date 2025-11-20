@@ -1,7 +1,4 @@
-<form class="form" [formGroup]="form">
-  <pre>
-  {{ form.value | json }}
-  </pre>
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit($event)">
   <div class="form-field">
     <label for="name">First Name</label>
     <input
@@ -88,14 +85,20 @@
     <div
       class="form-field"
       *ngFor="let phone of form.controls.phones.controls; index as i"
+      [formGroupName]="i"
     >
       <label for="phone-{{ i }}">Phone number</label>
       <div class="control-container">
+        <select class="phone-label-dropdown" formControlName="label">
+          <option *ngFor="let label of phoneLabels" [value]="label">
+            {{ label }}
+          </option>
+        </select>
         <input
           type="text"
           id="phone-{{ i }}"
           placeholder="Enter phone number"
-          [formControlName]="i"
+          formControlName="phone"
         />
         <button class="remove-button" type="button" (click)="removePhone(i)">
           -
