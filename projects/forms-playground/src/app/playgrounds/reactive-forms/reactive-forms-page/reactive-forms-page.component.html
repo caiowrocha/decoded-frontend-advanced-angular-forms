@@ -1,45 +1,106 @@
-<form class="form">
+<form class="form" [formGroup]="form">
+  <pre>
+  {{ form.value | json }}
+  </pre>
   <div class="form-field">
     <label for="name">First Name</label>
-    <input type="text" id="name" placeholder="Enter your name">
+    <input
+      type="text"
+      id="name"
+      placeholder="Enter your name"
+      formControlName="firstName"
+    />
   </div>
   <div class="form-field">
     <label for="last-name">Last Name</label>
-    <input type="text" id="last-name" placeholder="Enter your last name">
+    <input
+      type="text"
+      id="last-name"
+      placeholder="Enter your last name"
+      formControlName="lastName"
+    />
   </div>
   <div class="form-field">
     <label for="nick-name">Nick Name</label>
-    <input type="text" id="nick-name" placeholder="Come up with a nick name">
+    <input
+      type="text"
+      id="nick-name"
+      placeholder="Come up with a nick name"
+      formControlName="nickName"
+    />
   </div>
   <div class="form-field">
     <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Provide your email">
+    <input
+      type="email"
+      id="email"
+      placeholder="Provide your email"
+      formControlName="email"
+    />
   </div>
   <div class="form-field-inline-group">
     <div class="form-field form-field--small">
       <label for="year-of-birth">Year of birth</label>
-      <select id="year-of-birth">
-        <option *ngFor="let year of years" [value]="year">{{year}}</option>
+      <select id="year-of-birth" formControlName="yearOfBirth">
+        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
       </select>
     </div>
     <div class="form-field form-field--small">
       <label for="passport">Passport Number</label>
-      <input type="text" id="passport" placeholder="Provide Passport Data">
+      <input
+        type="text"
+        id="passport"
+        placeholder="Provide Passport Data"
+        formControlName="passport"
+      />
     </div>
   </div>
-  <fieldset>
+  <fieldset formGroupName="address">
     <legend>Address</legend>
     <div class="form-field">
       <label for="full-address">Full Adress</label>
-      <input type="text" id="full-address" placeholder="Street name and house number">
+      <input
+        type="text"
+        id="full-address"
+        placeholder="Street name and house number"
+        formControlName="fullAddress"
+      />
     </div>
     <div class="form-field">
       <label for="city">City</label>
-      <input type="text" id="city" placeholder="City">
+      <input type="text" id="city" placeholder="City" formControlName="city" />
     </div>
     <div class="form-field">
       <label for="post-code">Post Code</label>
-      <input type="number" id="post-code" placeholder="Post code">
+      <input
+        type="number"
+        id="post-code"
+        placeholder="Post code"
+        formControlName="postCode"
+      />
+    </div>
+  </fieldset>
+  <fieldset formArrayName="phones">
+    <legend>Phones</legend>
+    <div class="control-buttons">
+      <button class="add-button" type="button" (click)="addPhone()">+</button>
+    </div>
+    <div
+      class="form-field"
+      *ngFor="let phone of form.controls.phones.controls; index as i"
+    >
+      <label for="phone-{{ i }}">Phone number</label>
+      <div class="control-container">
+        <input
+          type="text"
+          id="phone-{{ i }}"
+          placeholder="Enter phone number"
+          [formControlName]="i"
+        />
+        <button class="remove-button" type="button" (click)="removePhone(i)">
+          -
+        </button>
+      </div>
     </div>
   </fieldset>
   <button>Save</button>
