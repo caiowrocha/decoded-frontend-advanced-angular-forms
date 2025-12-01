@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 import { UserSkillsService } from '../../../core/users-skills.service';
 
@@ -23,30 +23,29 @@ export class ReactiveFormsPageComponent implements OnInit {
   years =  this.getYears();
   skills$!: Observable<string[]>;
 
-  form = new FormGroup({
-    firstName: new FormControl('Dmytro'),
-    lastName: new FormControl('Mezhenskyi'),
-    nickname: new FormControl(''),
-    email: new FormControl('dmytro@decodedfrontend.io'),
-    yearOfBirth: new FormControl(this.years[this.years.length - 1], { nonNullable: true }),
-    passport: new FormControl(''),
-    address: new FormGroup({
-      fullAddress: new FormControl('', { nonNullable: true }),
-      city: new FormControl('', { nonNullable: true }),
-      postCode: new FormControl(0, { nonNullable: true }),
+
+  form = this.fb.group({
+    firstName: 'Dmytro',
+    lastName: 'Mezhenskyi',
+    nickname: '',
+    email: 'dmytro@decodedfrontend.io',
+    yearOfBirth: this.fb.nonNullable.control(this.years[this.years.length - 1]),
+    passport: '',
+    address: this.fb.nonNullable.group({
+      fullAddress: '',
+      city: '',
+      postCode: 0,
     }),
-    phones: new FormArray([
-      new FormGroup({
-        label: new FormControl(this.phoneLabels[0], { nonNullable: true }),
-        phone: new FormControl('')
+    phones: this.fb.array([
+      this.fb.group({
+        label: this.fb.nonNullable.control(this.phoneLabels[0]),
+        phone: ''
       })
     ]),
-    skills: new FormGroup<{
-      [key: string]: FormControl<boolean>;
-    }>({})
+    skills: this.fb.record<boolean>({})
   });
 
-  constructor(private userSkills: UserSkillsService) { }
+  constructor(private userSkills: UserSkillsService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.skills$ = this.userSkills
