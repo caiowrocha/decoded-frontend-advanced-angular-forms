@@ -99,9 +99,20 @@ select {
   width: 100%;
 }
 
-// .ng-valid.ng-dirty:not([ngModelGroup]):not(form) {
-//   border: 2px solid var(--color-success);
-// }
+.ng-valid.ng-dirty:not([formGroupName]):not([formArrayName]):not(form) {
+  border: 2px solid var(--color-success);
+}
+
+.ng-invalid.ng-dirty:not([formGroupName]):not([formArrayName]:not([formGroupName="address"])):not(form) {
+  border: 2px solid var(--color-error);
+}
+
+button[disabled] {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
 // .ng-invalid.ng-dirty:not([ngModelGroup="address"]):not(form) {
 //   border: 2px solid var(--color-error);
 // }
@@ -122,19 +133,20 @@ select {
 //   }
 // }
 
-// @mixin input-message() {
-//   font-size: 12px;
-//   box-sizing: border-box;
-//   padding: 2px 13px;
-//   animation-name: input-message-animation;
-//   animation-duration: 300ms;
-// }
+@mixin input-message() {
+  font-size: 12px;
+  box-sizing: border-box;
+  padding: 2px 13px;
+  animation-name: input-message-animation;
+  animation-duration: 300ms;
+}
 
-// .input-error {
-//   @include input-message();
-//   color: var(--color-error);
-// }
-// .input-info {
-//   @include input-message();
-//   color: var(--color-info)
-// }
+.input-error {
+  @include input-message();
+  color: var(--color-error);
+}
+
+.input-info {
+  @include input-message();
+  color: var(--color-info)
+}

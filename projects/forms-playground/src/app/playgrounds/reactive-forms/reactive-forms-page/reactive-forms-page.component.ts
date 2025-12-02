@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 import { UserSkillsService } from '../../../core/users-skills.service';
 
@@ -23,18 +23,17 @@ export class ReactiveFormsPageComponent implements OnInit {
   years =  this.getYears();
   skills$!: Observable<string[]>;
 
-
   form = this.fb.group({
-    firstName: 'Dmytro',
-    lastName: 'Mezhenskyi',
-    nickname: '',
-    email: 'dmytro@decodedfrontend.io',
-    yearOfBirth: this.fb.nonNullable.control(this.years[this.years.length - 1]),
-    passport: '',
+    firstName: ['Dmytro', Validators.required, Validators.minLength(3)],
+    lastName: ['Mezhenskyi', [Validators.required, Validators.minLength(3)]],
+    nickname: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/ˆ[\w.]+$/)]],
+    email: ['dmytro@decodedfrontend.io', [Validators.required, Validators.email]],
+    yearOfBirth: this.fb.nonNullable.control(this.years[this.years.length - 1], Validators.required),
+    passport: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}[0-9]{6}$/)]],
     address: this.fb.nonNullable.group({
-      fullAddress: '',
-      city: '',
-      postCode: 0,
+      fullAddress: ['', Validators.required],
+      city: ['', Validators.required],
+      postCode: [0, Validators.required],
     }),
     phones: this.fb.array([
       this.fb.group({
