@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -7,10 +13,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Observable, tap } from 'rxjs';
+import {
+  bufferCount,
+  filter,
+  Observable,
+  startWith,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { UserSkillsService } from '../../../core/users-skills.service';
 import { banWords } from '../validators/ban-words.validator';
 import { passwordShouldMatch } from '../validators/password-should-match.validator';
+import { UniqueNicknameValidator } from '../validators/unique-nickname.validator';
 
 @Component({
   selector: 'app-reactive-forms-page',
@@ -24,7 +38,7 @@ import { passwordShouldMatch } from '../validators/password-should-match.validat
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReactiveFormsPageComponent implements OnInit {
+export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
   phoneLabels = ['Main', 'Mobile', 'Work', 'Home'];
   years = this.getYears();
   skills$!: Observable<string[]>;
@@ -41,12 +55,18 @@ export class ReactiveFormsPageComponent implements OnInit {
     lastName: ['Mezhenskyi', [Validators.required, Validators.minLength(2)]],
     nickname: [
       '',
-      [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.pattern(/^[\w.]+$/),
-        banWords(['dummy', 'anonymous']),
-      ],
+      {
+        validators: [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.pattern(/^[\w.]+$/),
+          banWords(['dummy', 'anonymous']),
+        ],
+        asyncValidators: [
+          this.uniqueNickname.validate.bind(this.uniqueNickname),
+        ],
+        updateOn: 'blur',
+      },
     ],
     email: [
       'dmytro@decodedfrontend.io',
@@ -80,12 +100,42 @@ export class ReactiveFormsPageComponent implements OnInit {
     ),
   });
 
-  constructor(private userSkills: UserSkillsService, private fb: FormBuilder) {}
+  private ageValidators!: Subscription;
+  private formPendingState!: Subscription;
+
+  constructor(
+    private userSkills: UserSkillsService,
+    private fb: FormBuilder,
+    private uniqueNickname: UniqueNicknameValidator,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.skills$ = this.userSkills
       .getSkills()
       .pipe(tap((skills) => this.buildSkillControls(skills)));
+    this.ageValidators = this.form.controls.yearOfBirth.valueChanges
+      .pipe(
+        tap(() => this.form.controls.passport.markAsDirty()),
+        startWith(this.form.controls.yearOfBirth.value)
+      )
+      .subscribe((yearOfBirth) => {
+        this.isAdult(yearOfBirth)
+          ? this.form.controls.passport.addValidators(Validators.required)
+          : this.form.controls.passport.removeValidators(Validators.required);
+        this.form.controls.passport.updateValueAndValidity();
+      });
+    this.formPendingState = this.form.statusChanges
+      .pipe(
+        bufferCount(2, 1),
+        filter(([prevState]) => prevState === 'PENDING')
+      )
+      .subscribe(() => this.cd.markForCheck());
+  }
+
+  ngOnDestroy(): void {
+    this.ageValidators.unsubscribe();
+    this.formPendingState.unsubscribe();
   }
 
   addPhone() {
@@ -120,5 +170,10 @@ export class ReactiveFormsPageComponent implements OnInit {
         new FormControl(false, { nonNullable: true })
       )
     );
+  }
+
+  private isAdult(yearOfBirth: number): boolean {
+    const currentYear = new Date().getFullYear();
+    return currentYear - yearOfBirth >= 18;
   }
 }

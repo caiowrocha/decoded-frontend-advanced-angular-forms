@@ -86,6 +86,15 @@
       >
         Only letters, numbers, _ and . is allowed
       </div>
+      <div
+        class="input-error"
+        *ngIf="nickname.dirty && nickname.hasError('uniqueName')"
+      >
+        This nickname is already taken
+      </div>
+      <div class="input-info" *ngIf="nickname.pending">
+        Checking nickname...
+      </div>
     </ng-container>
   </div>
   <div class="form-field">
@@ -129,6 +138,12 @@
           *ngIf="passport.dirty && passport.hasError('pattern')"
         >
           Allowed format is: AB123456
+        </div>
+        <div
+          class="input-error"
+          *ngIf="passport.dirty && passport.hasError('required')"
+        >
+          This field is required
         </div>
       </ng-container>
     </div>
@@ -276,7 +291,7 @@
       </ng-container>
     </div>
   </fieldset>
-  <button [disabled]="form.invalid">Save</button>
+  <button [disabled]="form.invalid || form.pending">Save</button>
 </form>
 
 <ng-template #loading>
