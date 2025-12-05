@@ -5,11 +5,13 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
+  FormGroupDirective,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -103,6 +105,11 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
   private ageValidators!: Subscription;
   private formPendingState!: Subscription;
 
+  private initialFormValues: any;
+
+  @ViewChild(FormGroupDirective)
+  private formDir!: FormGroupDirective;
+
   constructor(
     private userSkills: UserSkillsService,
     private fb: FormBuilder,
@@ -111,9 +118,10 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.skills$ = this.userSkills
-      .getSkills()
-      .pipe(tap((skills) => this.buildSkillControls(skills)));
+    this.skills$ = this.userSkills.getSkills().pipe(
+      tap((skills) => this.buildSkillControls(skills)),
+      tap(() => (this.initialFormValues = this.form.value))
+    );
     this.ageValidators = this.form.controls.yearOfBirth.valueChanges
       .pipe(
         tap(() => this.form.controls.passport.markAsDirty()),
@@ -154,6 +162,13 @@ export class ReactiveFormsPageComponent implements OnInit, OnDestroy {
 
   onSubmit(e: Event) {
     console.log(this.form.value);
+    this.initialFormValues = this.form.value;
+    this.formDir.resetForm(this.form.value);
+  }
+
+  onReset(e: Event) {
+    e.preventDefault();
+    this.formDir.resetForm(this.initialFormValues);
   }
 
   private getYears() {

@@ -1,4 +1,9 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="form">
+<form
+  [formGroup]="form"
+  (reset)="onReset($event)"
+  (ngSubmit)="onSubmit($event)"
+  class="form"
+>
   <div class="form-field">
     <label for="name">First Name</label>
     <input
@@ -88,7 +93,7 @@
       </div>
       <div
         class="input-error"
-        *ngIf="nickname.dirty && nickname.hasError('uniqueName')"
+        *ngIf="nickname.dirty && nickname.hasError('uniqueNickName')"
       >
         This nickname is already taken
       </div>
@@ -292,6 +297,9 @@
     </div>
   </fieldset>
   <button [disabled]="form.invalid || form.pending">Save</button>
+  <button class="reset-button" type="reset" [disabled]="form.pristine">
+    Reset
+  </button>
 </form>
 
 <ng-template #loading>
