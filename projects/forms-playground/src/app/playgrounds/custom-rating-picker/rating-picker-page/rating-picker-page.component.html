@@ -1,1 +1,21 @@
-<p>Something awersome is going to be here 😉</p>
+<!-- <form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="review">
+  <h3>Course Review</h3>
+  <paper-textarea
+    ngDefaultControl
+    formControlName="reviewText"
+    placeholder="Your honest review..."
+    label="Review Text"
+    rows="2"
+    class="review-text"
+  ></paper-textarea>
+  <button>Save</button>
+</form> -->
+
+<form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="review">
+  <h3>Course Review</h3>
+  <div class="review-textarea" contenteditable formControlName="reviewText">
+    <h4 data-placeholder="Title..."></h4>
+    <p data-placeholder="Describe your experience..."></p>
+  </div>
+  <button>Save</button>
+</form>
